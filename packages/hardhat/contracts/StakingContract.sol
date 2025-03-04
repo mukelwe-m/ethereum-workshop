@@ -106,21 +106,34 @@ contract StakingContract {
         return sum;
     }
 
-    // Payable function with struct
-    function addUser(string memory _name, uint8 _age, Ethnicity ethnicity) public payable {
-        // msg.sender is a global variable
-        require(!users[msg.sender].exists, "User already exists");
-        require(msg.value > 0 , "The staking value is 0");
-        require(userAddresses.length < MAX_PEOPLE, string.concat("Users are over the limit of ", Strings.toString(MAX_PEOPLE)));
+    /**
+        Function returns the number of users in the smart contract
+     */
+    function getUserCount() public view returns(uint256){
+        uint256 count = userAddresses.length;
+        return count;
+    }
 
-        // the object is created in memory then stored in storage
-        User memory user = User(_name, _age, ethnicity, msg.value, userAddresses.length, true);
+    /**
+     * Function that allows users to store Ether in the smart contract
+     */
+    function addUser(string memory _name, uint8 _age, Ethnicity ethnicity) public {
+        
+        // TODO: make sure the function can receive ether
+        
+        // TODO: use require to check if the user sent ether in the calling transaction
 
-        // store the reference pointer
-        users[msg.sender] = user;
-        userAddresses.push(msg.sender);
+        // TODO: use require to check if user already exists or not
 
-        emit UserAdded(msg.sender, _name, _age, msg.value);
+        // TODO: use require to check if the users are over the set limit
+
+        // TODO: create the user object in memory
+
+        // TODO: store the user in the users key value mapping
+
+        // TODO: store the user address in the userAddresses array
+
+        // TODO: emit the UserAdded log
     }
 
     // Return many
@@ -130,42 +143,47 @@ contract StakingContract {
     }
 
     /**
-     * Function that allows the users to withdraw all the Ether they deposited the contract
+     * Function that allows the users to withdraw all the Ether they deposited in the smart contract
      */
     function withdraw() external lock {
-        uint256 amount = users[msg.sender].balance;
-        string memory name = users[msg.sender].name;
-        require(amount > 0, "No balance to withdraw");
+        // TODO: get the amount to be withdrawn
 
-        console.log(string.concat(name, ' <-> withdrawing '));
+        // TODO: use require to check if the user has any money to withdraw
+
+        // TODO: uncomment below to view print log messages during testing
+        // string memory name = users[msg.sender].name;
+        // console.log(string.concat(name, ' <-> withdrawing '));
         
-        // Send funds before updating balance
-        (bool success, ) = msg.sender.call{value: amount}("");
-        require(success, "Transfer failed");
+        // TODO: use the call function on an address object to send Ether to the user
 
-        _delete(msg.sender);
+        // TODO: uncomment below to log if withdrawal fails
+        // console.log(success ? "withdrawal successful": "withdrawal failed");
+
+        // TODO: use require to check if the transfer was successful
+
+        // TODO: uncomment to call the _delete function
+        // _delete(msg.sender);
     }
 
+    /**
+     * Function that deletes the user record from users and userAddresses after withdrawal
+     */
     function _delete(address userAddress) internal {
+        // TODO: uncomment this to check for user existence
+        // NOTE: We could have used require, but we can't illustrate the attack because the sm logic would fail after the first recursive withdrawal
+        // if (!users[userAddress].exists){
+        //     return;
+        // }
+        
+        // TODO: get the user object into memory
 
-        if (!users[msg.sender].exists){
-            return;
-        }
+        // TODO: delete the user from the users mapping
 
-        User memory user = users[userAddress];
+        // TODO: delete the user from users and from the userAddresses array
+        // NOTE: first re-locate the address in the last position to the position we are deleting
+        // NOTE: second edit the re-located user object's index
 
-        // Update of the state happens after sending Ether
-        delete users[msg.sender]; // resets value to 0
-
-        // shifted user
-        address shiftedUserAddress =  userAddresses[userAddresses.length - 1];
-        User storage shiftedUser = users[shiftedUserAddress];
-
-        userAddresses[user.index] = shiftedUserAddress;
-        shiftedUser.index = user.index;
-
-        // Remove last element
-        userAddresses.pop(); 
+        // TODO: use pop() to remove the last element of the userAddresses array
     }
 
     // Internal function

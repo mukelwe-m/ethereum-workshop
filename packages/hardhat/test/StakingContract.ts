@@ -31,7 +31,7 @@ describe("StakingContract", function () {
   });
 
   describe("Add users", function () {
-    it("Should not allow adding a without staking", async function () {
+    it("Should not allow adding a user without staking", async function () {
       // User should not be added without a staking amount
       await expect(stakingContract.connect(user1).addUser("user1", 20, 0)).to.be.revertedWith("The staking value is 0");
     });
@@ -84,6 +84,11 @@ describe("StakingContract", function () {
       );
     });
 
+    it("Should delete a user after withdrawal", async function () {
+      expect(await stakingContract.getUserCount()).to.equal(1);
+    });
+
+    // TODO: Comment out this section to test out a re-entrance attack
     // it("Should allow a re-entry attack", async function () {
     //   const transactionResponse = await attackerContract
     //     .connect(user3)
