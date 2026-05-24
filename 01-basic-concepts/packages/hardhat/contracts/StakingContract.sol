@@ -38,7 +38,7 @@ contract StakingContract {
 
     // Constants
     // uint256 public constant MAX_PEOPLE = 10;
-    uint256 public immutable MAX_PEOPLE = 10;
+    uint256 public immutable MAX_PEOPLE;
     bytes32 constant SLOT = 0;
 
     // Events
@@ -119,15 +119,34 @@ contract StakingContract {
     /**
      * Function that allows users to store Ether in the smart contract
      */
-    function addUser(string memory _name, uint8 _age, Ethnicity ethnicity) public {
+    function addUser(string memory _name, uint8 _age, Ethnicity ethnicity) public payable {
         // TODO: make sure the function can receive ether
         // TODO: use require to check if the user sent ether in the calling transaction
+        require(msg.value > 0, "Must send Ether to stake");
         // TODO: use require to check if user already exists or not
+        require(!users[msg.sender].exists, "User already exists");
         // TODO: use require to check if the users are over the set limit
+        require(userAddresses.length < MAX_PEOPLE, "Contract has reached maximum capacity");
         // TODO: create the user object in memory
         // TODO: store the user in the users key value mapping
         // TODO: store the user address in the userAddresses array
-        // TODO: emit the UserAdded log
+
+        // 4. Store the user address in the userAddresses array first to grab the index
+        uint256 newIndex = userAddresses.length;
+        userAddresses.push(msg.sender);
+
+        // 5. Create the user object and store it in the mapping
+        users[msg.sender] = User({
+            name: _name,
+            age: _age,
+            ethnicity: _ethnicity,
+            balance: msg.value,
+            index: newIndex,
+            exists: true
+        });
+
+        // TODO:  Emit the UserAdded log
+        emit UserAdded(msg.sender, _name, _age, msg.value);
     }
 
     // Return many
@@ -141,16 +160,21 @@ contract StakingContract {
      */
     function withdraw() external lock {
         // TODO: get the amount to be withdrawn
+        uint256 amount = users[msg.sender].balance;
         // TODO: use require to check if the user has any money to withdraw
+        require(amount > 0, "No funds to withdraw");
         // TODO: uncomment below to view print log messages during testing
-        // string memory name = users[msg.sender].name;
-        // console.log(string.concat(name, ' <-> withdrawing '));
+        string memory name = users[msg.sender].name;
+        console.log(string.concat(name, " <-> withdrawing "));
         // TODO: use the call function on an address object to send Ether to the user
+        (bool success, ) = msg.sender.call{ value: amount }("");
+
         // TODO: uncomment below to log if withdrawal fails
-        // console.log(success ? "withdrawal successful": "withdrawal failed");
+        console.log(success ? "withdrawal successful" : "withdrawal failed");
         // TODO: use require to check if the transfer was successful
+        require(success, "Withdrawal failed");
         // TODO: uncomment to call the _delete function
-        // _delete(msg.sender);
+        _delete(msg.sender);
     }
 
     /**
@@ -159,15 +183,29 @@ contract StakingContract {
     function _delete(address userAddress) internal {
         // TODO: uncomment this to check for user existence
         // NOTE: We could have used require, but we can't illustrate the attack because the sm logic would fail after the first recursive withdrawal
-        // if (!users[userAddress].exists){
-        //     return;
-        // }
+        if (!users[userAddress].exists) {
+            return;
+        }
         // TODO: get the user object into memory
-        // TODO: delete the user from the users mapping
+        uint256 indexToDelete = users[userAddress].index;
+        uint256 lastIndex = userAddresses.length - 1;
+
         // TODO: delete the user from users and from the userAddresses array
+        if (indexToDelete != lastIndex) {
+            address lastUserAddress = userAddresses[lastIndex];
+
+            // Update the userAddresses array to move the last address to the index of the deleted user
+            userAddresses[indexToDelete] = lastUserAddress;
+            // Update the index of the user object that was moved to the index of the deleted user
+            users[lastUserAddress].index = indexToDelete;
+        }
+
         // NOTE: first re-locate the address in the last position to the position we are deleting
         // NOTE: second edit the re-located user object's index
         // TODO: use pop() to remove the last element of the userAddresses array
+        userAddresses.pop();
+        // TODO: delete the user from the users mapping
+        delete users[userAddress];
     }
 
     // Internal function
