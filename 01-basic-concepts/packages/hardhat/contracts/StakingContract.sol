@@ -119,14 +119,14 @@ contract StakingContract {
     /**
      * Function that allows users to store Ether in the smart contract
      */
-    function addUser(string memory _name, uint8 _age, Ethnicity ethnicity) public payable {
+    function addUser(string memory _name, uint8 _age, Ethnicity _ethnicity) public payable {
         // TODO: make sure the function can receive ether
         // TODO: use require to check if the user sent ether in the calling transaction
-        require(msg.value > 0, "Must send Ether to stake");
+        require(msg.value > 0, "The staking value is 0");
         // TODO: use require to check if user already exists or not
         require(!users[msg.sender].exists, "User already exists");
         // TODO: use require to check if the users are over the set limit
-        require(userAddresses.length < MAX_PEOPLE, "Contract has reached maximum capacity");
+        require(userAddresses.length < MAX_PEOPLE, "Users are over the limit of 2");
         // TODO: create the user object in memory
         // TODO: store the user in the users key value mapping
         // TODO: store the user address in the userAddresses array
@@ -162,7 +162,7 @@ contract StakingContract {
         // TODO: get the amount to be withdrawn
         uint256 amount = users[msg.sender].balance;
         // TODO: use require to check if the user has any money to withdraw
-        require(amount > 0, "No funds to withdraw");
+        require(amount > 0, "No balance to withdraw");
         // TODO: uncomment below to view print log messages during testing
         string memory name = users[msg.sender].name;
         console.log(string.concat(name, " <-> withdrawing "));
