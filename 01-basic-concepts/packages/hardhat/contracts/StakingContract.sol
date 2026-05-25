@@ -166,6 +166,9 @@ contract StakingContract {
         // TODO: uncomment below to view print log messages during testing
         string memory name = users[msg.sender].name;
         console.log(string.concat(name, " <-> withdrawing "));
+
+        // Clear their balance in state FIRST (Effects) before making the external call (Interactions)
+        users[msg.sender].balance = 0;
         // TODO: use the call function on an address object to send Ether to the user
         (bool success, ) = msg.sender.call{ value: amount }("");
 
