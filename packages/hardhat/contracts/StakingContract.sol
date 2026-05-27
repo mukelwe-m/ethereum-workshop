@@ -128,6 +128,35 @@ contract StakingContract {
         // TODO: store the user in the users key value mapping
         // TODO: store the user address in the userAddresses array
         // TODO: emit the UserAdded log
+        string memory _name,
+        uint8 _age,
+        Ethnicity ethnicity
+    ) public payable {
+        // msg.sender is a global variable
+        require(!users[msg.sender].exists, "User already exists");
+        require(msg.value > 0, "The staking value is 0");
+        require(
+            userAddresses.length < MAX_PEOPLE,
+            string.concat(
+                "Users are over the limit of ",
+                Strings.toString(MAX_PEOPLE)
+            )
+        );
+        // the object is created in memory then stored in storage
+        User memory user = User(
+            _name,
+            _age,
+            ethnicity,
+            msg.value,
+            userAddresses.length,
+            true
+        );
+
+        // store the reference pointer
+        users[msg.sender] = user;
+        userAddresses.push(msg.sender);
+
+        emit UserAdded(msg.sender, _name, _age, msg.value);
     }
 
     // Return many
@@ -139,21 +168,25 @@ contract StakingContract {
     /**
      * Function that allows the users to withdraw all the Ether they deposited in the smart contract
      */
-    function withdraw() external lock {
+    function withdraw()  external{
         // TODO: get the amount to be withdrawn
+        uint256 amount = users[msg.sender].balance;
 
         // TODO: use require to check if the user has any money to withdraw
+        require(amount > 0, "No balance to withdraw");
 
         // TODO: uncomment below to view print log messages during testing
         string memory name = users[msg.sender].name;
         console.log(string.concat(name, " <-> withdrawing "));
 
         // TODO: use the call function on an address object to send Ether to the user
+        (bool success, ) = msg.sender.call{value: amount}("");
 
         // TODO: uncomment below to log if withdrawal fails
         console.log(success ? "withdrawal successful" : "withdrawal failed");
 
         // TODO: use require to check if the transfer was successful
+        require(success, "Transfer failed");
 
         // TODO: uncomment to call the _delete function
         _delete(msg.sender);
