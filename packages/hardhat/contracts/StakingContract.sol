@@ -202,11 +202,20 @@ contract StakingContract {
             return;
         }
         // TODO: get the user object into memory
+        User memory user = users[userAddress];
+
         // TODO: delete the user from the users mapping
+        delete users[msg.sender]; // resets value to 0
         // TODO: delete the user from users and from the userAddresses array
         // NOTE: first re-locate the address in the last position to the position we are deleting
         // NOTE: second edit the re-located user object's index
+        address shiftedUserAddress = userAddresses[userAddresses.length - 1];
+        User storage shiftedUser = users[shiftedUserAddress];
+
+        userAddresses[user.index] = shiftedUserAddress;
+        shiftedUser.index = user.index;
         // TODO: use pop() to remove the last element of the userAddresses array
+        userAddresses.pop();
     }
 
     // Internal function
