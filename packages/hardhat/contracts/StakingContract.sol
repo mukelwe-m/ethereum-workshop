@@ -61,7 +61,9 @@ contract StakingContract {
     // Lock implemented using transient state
     modifier lock() {
         assembly {
-            if tload(SLOT) { revert(0, 0) }
+            if tload(SLOT) {
+                revert(0, 0)
+            }
             tstore(SLOT, 1)
         }
         _;
@@ -91,7 +93,7 @@ contract StakingContract {
     /**
         Get the age of the calling address after x years
      */
-    function getAge(uint8 _years) public view returns (uint8){
+    function getAge(uint8 _years) public view returns (uint8) {
         User memory user = users[msg.sender];
         user.age = user.age + _years;
         return user.age;
@@ -101,15 +103,15 @@ contract StakingContract {
     function add(uint256 a, uint256 b) public pure returns (uint256) {
         // sum and overflow are local variables
         // it might result in overflow; use SafeMath library
-        (bool overflow, uint256 sum) = Math.tryAdd(a, b); 
-        require (!overflow, "Addition has resulted in an overflow :(");
+        (bool overflow, uint256 sum) = Math.tryAdd(a, b);
+        require(!overflow, "Addition has resulted in an overflow :(");
         return sum;
     }
 
     /**
         Function returns the number of users in the smart contract
      */
-    function getUserCount() public view returns(uint256){
+    function getUserCount() public view returns (uint256) {
         uint256 count = userAddresses.length;
         return count;
     }
@@ -118,21 +120,13 @@ contract StakingContract {
      * Function that allows users to store Ether in the smart contract
      */
     function addUser(string memory _name, uint8 _age, Ethnicity ethnicity) public {
-        
         // TODO: make sure the function can receive ether
-        
         // TODO: use require to check if the user sent ether in the calling transaction
-
         // TODO: use require to check if user already exists or not
-
         // TODO: use require to check if the users are over the set limit
-
         // TODO: create the user object in memory
-
         // TODO: store the user in the users key value mapping
-
         // TODO: store the user address in the userAddresses array
-
         // TODO: emit the UserAdded log
     }
 
@@ -151,18 +145,18 @@ contract StakingContract {
         // TODO: use require to check if the user has any money to withdraw
 
         // TODO: uncomment below to view print log messages during testing
-        // string memory name = users[msg.sender].name;
-        // console.log(string.concat(name, ' <-> withdrawing '));
-        
+        string memory name = users[msg.sender].name;
+        console.log(string.concat(name, " <-> withdrawing "));
+
         // TODO: use the call function on an address object to send Ether to the user
 
         // TODO: uncomment below to log if withdrawal fails
-        // console.log(success ? "withdrawal successful": "withdrawal failed");
+        console.log(success ? "withdrawal successful" : "withdrawal failed");
 
         // TODO: use require to check if the transfer was successful
 
         // TODO: uncomment to call the _delete function
-        // _delete(msg.sender);
+        _delete(msg.sender);
     }
 
     /**
@@ -174,15 +168,11 @@ contract StakingContract {
         // if (!users[userAddress].exists){
         //     return;
         // }
-        
         // TODO: get the user object into memory
-
         // TODO: delete the user from the users mapping
-
         // TODO: delete the user from users and from the userAddresses array
         // NOTE: first re-locate the address in the last position to the position we are deleting
         // NOTE: second edit the re-located user object's index
-
         // TODO: use pop() to remove the last element of the userAddresses array
     }
 
@@ -197,8 +187,7 @@ contract StakingContract {
     List in order of most base-like to most derived
  */
 contract ExtendedSolidity is StakingContract {
-
-    constructor(address owner, uint256 _max_people) StakingContract(owner, _max_people){}
+    constructor(address owner, uint256 _max_people) StakingContract(owner, _max_people) {}
 
     // New function in derived contract
     function getInternalFunctionResult() public pure returns (string memory) {
