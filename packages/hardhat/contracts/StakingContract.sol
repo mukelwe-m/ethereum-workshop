@@ -119,7 +119,7 @@ contract StakingContract {
     /**
      * Function that allows users to store Ether in the smart contract
      */
-    function addUser(string memory _name, uint8 _age, Ethnicity ethnicity) public {
+    function addUser(string memory _name, uint8 _age, Ethnicity ethnicity) public payable {
         // TODO: make sure the function can receive ether
         // TODO: use require to check if the user sent ether in the calling transaction
         // TODO: use require to check if user already exists or not
@@ -128,29 +128,16 @@ contract StakingContract {
         // TODO: store the user in the users key value mapping
         // TODO: store the user address in the userAddresses array
         // TODO: emit the UserAdded log
-        string memory _name,
-        uint8 _age,
-        Ethnicity ethnicity
-    ) public payable {
+
         // msg.sender is a global variable
         require(!users[msg.sender].exists, "User already exists");
         require(msg.value > 0, "The staking value is 0");
         require(
             userAddresses.length < MAX_PEOPLE,
-            string.concat(
-                "Users are over the limit of ",
-                Strings.toString(MAX_PEOPLE)
-            )
+            string.concat("Users are over the limit of ", Strings.toString(MAX_PEOPLE))
         );
         // the object is created in memory then stored in storage
-        User memory user = User(
-            _name,
-            _age,
-            ethnicity,
-            msg.value,
-            userAddresses.length,
-            true
-        );
+        User memory user = User(_name, _age, ethnicity, msg.value, userAddresses.length, true);
 
         // store the reference pointer
         users[msg.sender] = user;
@@ -168,7 +155,7 @@ contract StakingContract {
     /**
      * Function that allows the users to withdraw all the Ether they deposited in the smart contract
      */
-    function withdraw()  external{
+    function withdraw() external {
         // TODO: get the amount to be withdrawn
         uint256 amount = users[msg.sender].balance;
 
@@ -180,7 +167,7 @@ contract StakingContract {
         console.log(string.concat(name, " <-> withdrawing "));
 
         // TODO: use the call function on an address object to send Ether to the user
-        (bool success, ) = msg.sender.call{value: amount}("");
+        (bool success, ) = msg.sender.call{ value: amount }("");
 
         // TODO: uncomment below to log if withdrawal fails
         console.log(success ? "withdrawal successful" : "withdrawal failed");
@@ -198,7 +185,7 @@ contract StakingContract {
     function _delete(address userAddress) internal {
         // TODO: uncomment this to check for user existence
         // NOTE: We could have used require, but we can't illustrate the attack because the sm logic would fail after the first recursive withdrawal
-        if (!users[userAddress].exists){
+        if (!users[userAddress].exists) {
             return;
         }
         // TODO: get the user object into memory
