@@ -198,9 +198,9 @@ contract StakingContract {
     function _delete(address userAddress) internal {
         // TODO: uncomment this to check for user existence
         // NOTE: We could have used require, but we can't illustrate the attack because the sm logic would fail after the first recursive withdrawal
-        // if (!users[userAddress].exists){
-        //     return;
-        // }
+        if (!users[userAddress].exists){
+            return;
+        }
         // TODO: get the user object into memory
         // TODO: delete the user from the users mapping
         // TODO: delete the user from users and from the userAddresses array
